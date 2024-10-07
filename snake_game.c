@@ -11,15 +11,12 @@ typedef struct {
 #define MAX_SNAKE_LENGTH 100
 
 void generate_food(vec2 *food, int screen_width, int screen_height) {
-    food->x = rand() % screen_width;
-    food->y = rand() % screen_height;
+    food->x = (rand() % (screen_width - 2)) + 1; // Ensure food spawns within the borders
+    food->y = (rand() % (screen_height - 3)) + 2; // Adjust for top scoreboard and border
 }
 
 void draw_scoreboard(int score, int hearts, int screen_width) {
-    mvprintw(0, 0, "Score: %d  Hearts: %d", score, hearts);
-    for (int i = 0; i < screen_width; i++) {
-        mvaddch(1, i, '-');
-    }
+    mvprintw(0, 1, "Score: %d  Hearts: %d", score, hearts);
 }
 
 int main() {
@@ -71,16 +68,16 @@ int main() {
         vec2 new_head = {snake[0].x + dir.x, snake[0].y + dir.y};
 
         // Check collisions with the screen boundaries
-        if (new_head.x < 0) {
-            new_head.x = screen_width - 1;
+        if (new_head.x <= 0) {
+            new_head.x = screen_width - 2;
             hearts--;
-        } else if (new_head.x >= screen_width) {
-            new_head.x = 0;
+        } else if (new_head.x >= screen_width - 1) {
+            new_head.x = 1;
             hearts--;
-        } else if (new_head.y < 2) { // The top line is reserved for the scoreboard
-            new_head.y = screen_height - 1;
+        } else if (new_head.y <= 1) { // The top line is reserved for the border
+            new_head.y = screen_height - 2;
             hearts--;
-        } else if (new_head.y >= screen_height) {
+        } else if (new_head.y >= screen_height - 1) {
             new_head.y = 2;
             hearts--;
         }
@@ -115,6 +112,7 @@ int main() {
 
         // Draw to the screen
         erase();
+        box(win, 0, 0); // Draw the border
         draw_scoreboard(score, hearts, screen_width);
         mvaddch(food.y, food.x, '*');
         for (int i = 0; i < snake_length; i++) {
