@@ -10,10 +10,22 @@ typedef struct {
 
 #define MAX_SNAKE_LENGTH 100
 
-void generate_food(vec2 *food, int screen_width, int screen_height) {
-    // Ensure food spawns within the borders, avoiding edges
-    food->x = (rand() % (screen_width - 2)) + 1;  // Between 1 and screen_width - 2
-    food->y = (rand() % (screen_height - 3)) + 2; // Between 2 and screen_height - 2
+void generate_food(vec2 *food, vec2 snake[], int snake_length, int screen_width, int screen_height) {
+    int valid_position = 0;
+    while (!valid_position) {
+        // Generate food within the playable area (not on borders)
+        food->x = (rand() % (screen_width - 2)) + 1;
+        food->y = (rand() % (screen_height - 3)) + 2;
+
+        // Check if the food position overlaps with any part of the snake
+        valid_position = 1; // Assume position is valid
+        for (int i = 0; i < snake_length; i++) {
+            if (snake[i].x == food->x && snake[i].y == food->y) {
+                valid_position = 0; // Invalid if overlapping
+                break;
+            }
+        }
+    }
 }
 
 void draw_scoreboard(int score, int hearts, int screen_width) {
@@ -39,7 +51,7 @@ int main() {
 
     // Food setup
     vec2 food;
-    generate_food(&food, screen_width, screen_height);
+    generate_food(&food, snake, snake_length, screen_width, screen_height);
 
     // Game state
     int hearts = 3;
@@ -89,18 +101,27 @@ int main() {
         }
 
         // Check collision with itself
-        for (int i = 0; i < snake_length; i++) {
+        int collided = 0;
+        for (int i = 1; i < snake_length; i++) {
             if (snake[i].x == new_head.x && snake[i].y == new_head.y) {
                 hearts--;
+                collided = 1;
                 break;
             }
         }
 
-        // Update snake body
-        for (int i = snake_length; i > 0; i--) {
-            snake[i] = snake[i - 1];
+        // If collided with itself and no hearts left, break
+        if (collided && hearts <= 0) {
+            break;
         }
-        snake[0] = new_head;
+
+        // Update snake body only if no collision with itself
+        if (!collided) {
+            for (int i = snake_length; i > 0; i--) {
+                snake[i] = snake[i - 1];
+            }
+            snake[0] = new_head;
+        }
 
         // Check if snake eats the food
         if (new_head.x == food.x && new_head.y == food.y) {
@@ -108,7 +129,7 @@ int main() {
                 snake_length++;
             }
             score++;
-            generate_food(&food, screen_width, screen_height);
+            generate_food(&food, snake, snake_length, screen_width, screen_height);
         }
 
         // Draw to the screen
