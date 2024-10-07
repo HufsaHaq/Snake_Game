@@ -11,8 +11,9 @@ typedef struct {
 #define MAX_SNAKE_LENGTH 100
 
 void generate_food(vec2 *food, int screen_width, int screen_height) {
-    food->x = (rand() % (screen_width - 2)) + 1; // Ensure food spawns within the borders
-    food->y = (rand() % (screen_height - 3)) + 2; // Adjust for top scoreboard and border
+    // Ensure food spawns within the borders, avoiding edges
+    food->x = (rand() % (screen_width - 2)) + 1;  // Between 1 and screen_width - 2
+    food->y = (rand() % (screen_height - 3)) + 2; // Between 2 and screen_height - 2
 }
 
 void draw_scoreboard(int score, int hearts, int screen_width) {
