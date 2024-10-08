@@ -13,9 +13,9 @@ typedef struct {
 void generate_food(vec2 *food, vec2 snake[], int snake_length, int screen_width, int screen_height) {
     int valid_position = 0;
     while (!valid_position) {
-        // Generate food within the playable area (not on borders)
-        food->x = (rand() % (screen_width - 2)) + 1;
-        food->y = (rand() % (screen_height - 3)) + 2;
+        // Generate food within the playable area, excluding the borders
+        food->x = (rand() % (screen_width - 2)) + 1; // Between 1 and screen_width - 2
+        food->y = (rand() % (screen_height - 2)) + 1; // Between 1 and screen_height - 2
 
         // Check if the food position overlaps with any part of the snake
         valid_position = 1; // Assume position is valid
@@ -42,7 +42,7 @@ void game_over_screen(int screen_width, int screen_height) {
 }
 
 int main() {
-    int screen_width = 40;
+    int screen_width = 130;
     int screen_height = 20;
     int speed = 150000; // Initial speed in microseconds
 
@@ -94,6 +94,7 @@ int main() {
             } else if (pressed == 'p' || pressed == 'P') { // Pause functionality
                 paused = !paused;
             } else if (pressed == 27) { // Escape key (27 is ESC)
+                endwin();
                 return 0;
             }
 
@@ -109,17 +110,17 @@ int main() {
             vec2 new_head = {snake[0].x + dir.x, snake[0].y + dir.y};
 
             // Check collisions with the screen boundaries
-            if (new_head.x <= 0) {
+            if (new_head.x < 1) {
                 new_head.x = screen_width - 2;
                 hearts--;
             } else if (new_head.x >= screen_width - 1) {
                 new_head.x = 1;
                 hearts--;
-            } else if (new_head.y <= 1) { // The top line is reserved for the border
+            } else if (new_head.y < 1) { // The top line is reserved for the border
                 new_head.y = screen_height - 2;
                 hearts--;
             } else if (new_head.y >= screen_height - 1) {
-                new_head.y = 2;
+                new_head.y = 1;
                 hearts--;
             }
 
